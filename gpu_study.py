@@ -12,13 +12,14 @@ from experiments.exact import multiply, bound
 
 
 def oracle(a, bt, p):
-    """Four exact bounded float64 integer GEMMs, not an overflowing int64 GEMM."""
+    """One or four bounded float64 integer GEMMs, without overflowing int64 sums."""
     k = a.shape[1]
     assert k * 65535**2 < 2**53
     aa, bb = a % p, bt % p
     result = np.zeros((a.shape[0],bt.shape[0]),np.int64)
-    for i in range(2):
-        for j in range(2):
+    limbs=((p-1).bit_length()+15)//16
+    for i in range(limbs):
+        for j in range(limbs):
             x = ((aa >> (16*i)) & 65535).astype(np.float64)
             y = ((bb >> (16*j)) & 65535).astype(np.float64)
             partial = x @ y.T
@@ -45,7 +46,7 @@ def main():
     kernels={name:module.get_function(name) for name in ('encode_i8','encode_fp4','reduce_i8','reduce_fp4','simt')}
     rng=np.random.default_rng(args.seed); cases=[]
     # Check the optimized CPU oracle against arbitrary-precision arithmetic first.
-    for p in (257,65521,2013265921):
+    for p in (13,257,65521,2013265921):
         a=rng.integers(-p//2,p//2+1,(5,19),np.int64);bt=rng.integers(-p//2,p//2+1,(7,19),np.int64)
         assert np.array_equal(oracle(a,bt,p),np.array(multiply(a.tolist(),bt.T.tolist(),p),np.int64))
     stream=cp.cuda.Stream(non_blocking=True)
@@ -60,8 +61,8 @@ def main():
             result.append(cp.cuda.get_elapsed_time(start,end))
         return result
 
-    for m,n,k in ((128,128,128),(256,256,256),(512,256,512)):
-        for p in (257,65521,2013265921):
+    for m,n,k in ((128,128,128),(256,256,256),(512,256,512),(1024,1024,1024)):
+        for p in (13,257,65521,2013265921):
             half=p//2;a=rng.integers(-half,half+1,(m,k),np.int64);bt=rng.integers(-half,half+1,(n,k),np.int64)
             a[0,:]=np.resize(np.array([-half,half,0,1,-1],np.int64),k)
             bt[0,:]=np.resize(np.array([half,-half,1,0,-1],np.int64),k)
@@ -80,6 +81,8 @@ def main():
                     maximum=half;limbs=0
                     while maximum:
                         limbs+=1;maximum=(maximum+(8 if base==13 else base//2))//base
+                    if base==13 and p==13:
+                        limbs=1  # The carry is a multiple of p and contributes zero modulo p.
                     assert bound(k,base)<(2**24 if base==13 else 2**31)
                     unit=2 if base==13 else 1
                     ea=cp.empty((limbs,m*k//unit),cp.uint8 if unit==2 else cp.int8)
@@ -113,6 +116,7 @@ def main():
                 run();stream.synchronize();actual=cp.asnumpy(out)
                 assert np.array_equal(actual,expected),(m,n,k,p,mode,np.flatnonzero(actual!=expected)[:4])
                 record=dict(m=m,n=n,k=k,p=p,mode=mode,limbs=limbs if base else 0,exact_outputs=actual.size,
+                    encoding_contract='single residue digit modulo 13' if base==13 and p==13 else 'lossless centered-integer limbs' if base else 'direct modular accumulation',
                     input_sha256=input_hash,output_sha256=hashlib.sha256(actual.tobytes()).hexdigest(),setup_wall_ms=setup_ms,
                     cpu_oracle_wall_ms=cpu_ms,cpu_oracle_samples_ms=cpu_samples)
                 if not args.validation_only:
@@ -124,6 +128,8 @@ def main():
                         if stream.is_capturing():stream.end_capture()
                         graph=None;record['graph_error']=str(error)
                     if graph is not None:
+                        graph.launch(stream);stream.synchronize()
+                        assert np.array_equal(cp.asnumpy(out),expected),(m,n,k,p,mode,'captured output')
                         record['resident_graph_ms']=samples(lambda:graph.launch(stream))
                     transfer=[]
                     for _ in range(5):
@@ -140,7 +146,7 @@ def main():
     record=dict(utc=datetime.now(timezone.utc).isoformat(),seed=args.seed,cases=cases,validation_only=args.validation_only,
         source_sha256={p:hashlib.sha256(Path(p).read_bytes()).hexdigest() for p in files},
         binary_sha256=hashlib.sha256(Path('build/libexact.so').read_bytes()).hexdigest(),
-        notes='Resident includes GPU conversion, all limb GEMMs and modular reduction. Transfer-inclusive adds H2D input and D2H output, with persistent allocations. Setup separately. CPU oracle uses bounded float64 integer products, checked against arbitrary precision. No energy claim.')
+        notes='Resident includes GPU conversion, all limb GEMMs and modular reduction. Transfer-inclusive adds H2D input and D2H output, with persistent allocations. Setup separately. CPU oracle uses one float64 integer GEMM for fields <= 16 bits and four for the wider field, checked against arbitrary precision. No energy claim.')
     Path(args.output).write_text(json.dumps(record,indent=2)+'\n',encoding='utf-8',newline='\n')
 
 

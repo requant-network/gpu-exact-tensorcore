@@ -1,0 +1,12 @@
+{
+  "source_sha256": {
+    "generate_report.py": "ab0b9e0bd0fca2b26abd6a044e71e00acc8989df26e0b80f9b361116bb3d3356",
+    "summarize_results.py": "fe38a2f0d7b63b94f271b7ab2571c7b2b854f71a66961994db7aec9f925e688b"
+  },
+  "artifacts_sha256": {
+    "RESULTS.md": "d5711d7e7a4ee6ebe7e41677a952c6831ffda0957bec14e8f32f4f0fea38e2e3",
+    "FINAL_REPORT.md": "dcbe0ae29a9ad4ac046b8ec48ef3bd17fc06fb3308cf04bc7f6ee60732712129",
+    "results/summary.csv": "5c3314d138ff48102d46b7805fa9c27f9684054a1310e14d200f0368b871e21f"
+  },
+  "timer_interpretation": "Per-input-cohort summaries; no pooling into independent-instance confidence intervals."
+}

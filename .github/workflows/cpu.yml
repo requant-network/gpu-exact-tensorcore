@@ -13,3 +13,6 @@ jobs:
       - run: python -m compileall -q -x 'build|upstream' .
       - run: python verify_records.py
       - run: python cpu_study.py --output build/ci-reference.json
+      - run: python summarize_results.py
+      - run: python generate_report.py
+      - run: git diff --exit-code -- results/summary.csv results/report-provenance.json RESULTS.md FINAL_REPORT.md

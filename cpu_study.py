@@ -21,7 +21,9 @@ for p in (13,257,65521,2013265921):
             actual=[[sum(reconstruct(x,base)*reconstruct(y,base) for x,y in zip(row,column))%p for column in zip(*db)] for row in da]
             assert actual==expected;matrices+=1
 assert bound(16384,13)<2**24 and bound(16384,256)<2**31
+assert all((FP4_DIGITS[x%13]-x)%13==0 for x in range(-1000,1000))
 record=dict(encoding_values=checks,modular_products=matrices,fields=[13,257,65521,2013265921],
+    fp4_mod13_residue_checks=2000,
     fp4_contract='Digit d is stored as d/2 with scale 1; FP32 GEMM output multiplied by 4 restores integer limb dot products. k*64 < 2^24 bounds all partial integer sums; split k when necessary.',
     int8_contract='Balanced signed base-128/base-256 limbs; k*max_digit^2 < 2^31 prevents signed accumulator overflow. Reconstruct modulo p without unbounded GPU integer sums.',
     source_sha256={p:hashlib.sha256(pathlib.Path(p).read_bytes()).hexdigest() for p in ('cpu_study.py','experiments/exact.py')})

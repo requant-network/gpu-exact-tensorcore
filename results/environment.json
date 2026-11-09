@@ -1,0 +1,66 @@
+{
+  "totalGlobalMem": 16657285120,
+  "major": 12,
+  "minor": 0,
+  "multiProcessorCount": 36,
+  "maxThreadsPerBlock": 1024,
+  "maxThreadsPerMultiProcessor": 1536,
+  "sharedMemPerBlock": 49152,
+  "sharedMemPerMultiprocessor": 102400,
+  "gpu_name": "NVIDIA GeForce RTX 5060 Ti",
+  "shared_mem_optin_bytes": 101376,
+  "cpu": "AMD Ryzen 5 5500",
+  "utc": "2026-11-09T06:27:15.725633+00:00",
+  "python": "3.12.3",
+  "os": "Linux",
+  "kernel": "6.8.0-142-generic",
+  "architecture": "x86_64",
+  "runtime": 12090,
+  "driver": 13030,
+  "nvrtc": [
+    12,
+    8
+  ],
+  "logical_cpu_count": 12,
+  "packages": {
+    "numpy": "2.2.6",
+    "cupy-cuda12x": "13.6.0",
+    "nvidia-cuda-nvrtc-cu12": "12.8.93",
+    "nvidia-cuda-runtime-cu12": "12.8.90",
+    "nvidia-cublas-cu12": "12.8.4.1"
+  },
+  "nvidia_smi_columns": [
+    "name",
+    "driver_version",
+    "memory.total",
+    "power.limit",
+    "clocks.max.sm",
+    "clocks.max.mem",
+    "pcie.link.gen.max",
+    "pcie.link.width.max"
+  ],
+  "nvidia_smi_values": [
+    "NVIDIA GeForce RTX 5060 Ti",
+    "610.43.03",
+    "16311 MiB",
+    "180.00 W",
+    "3120 MHz",
+    "14001 MHz",
+    "3",
+    "16"
+  ],
+  "nvcc_version": "nvcc: NVIDIA (R) Cuda compiler driver\nCopyright (c) 2005-2026 NVIDIA Corporation\nBuilt on Tue_Jun_09_02:43:40_PM_PDT_2026\nCuda compilation tools, release 13.3, V13.3.73\nBuild cuda_13.3.r13.3/compiler.38244171_0\n",
+  "gxx_version": "g++ (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0",
+  "thread_environment": {
+    "OPENBLAS_NUM_THREADS": "6",
+    "OMP_NUM_THREADS": "6"
+  },
+  "free_and_total_device_bytes_at_collection": [
+    15886188544,
+    16657285120
+  ],
+  "power_clock_changes": "None requested or performed; no energy efficiency conclusion.",
+  "source_sha256": {
+    "record_environment.py": "e8cb9baff80443583d85ea0bf11fca9d749dbc7e901d6135f802fc4669469b37"
+  }
+}
