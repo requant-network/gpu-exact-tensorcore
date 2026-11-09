@@ -1,0 +1,16 @@
+{
+  "encoding_values": 405504,
+  "modular_products": 36,
+  "fields": [
+    13,
+    257,
+    65521,
+    2013265921
+  ],
+  "fp4_contract": "Digit d is stored as d/2 with scale 1; FP32 GEMM output multiplied by 4 restores integer limb dot products. k*64 < 2^24 bounds all partial integer sums; split k when necessary.",
+  "int8_contract": "Balanced signed base-128/base-256 limbs; k*max_digit^2 < 2^31 prevents signed accumulator overflow. Reconstruct modulo p without unbounded GPU integer sums.",
+  "source_sha256": {
+    "cpu_study.py": "64a98b89dfdfa8eeb16ec72a74971ea68ee635acfe61e7e4c27922dc2f92997e",
+    "experiments/exact.py": "63e5c8544e9cc76b557b492892dfba638b81a528105ebf90de646800fbd57a4b"
+  }
+}

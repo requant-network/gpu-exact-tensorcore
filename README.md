@@ -1,41 +1,58 @@
 # Exact Tensor Core Arithmetic
 
-Exact modular matrix products on SM120: integer limbs, FP4 encodings and full-pipeline cost.
-
 A research project by [Requant Network](https://requant.network).
 
-**Status: research in progress. No performance result is claimed yet.**
+**Status: active research. Exact GPU products and precision controls pass; the final latency comparison is pending.**
 
-## Research question and scope
+This study asks whether a consumer Blackwell GPU can use FP4 Tensor Cores for **exact modular matrix multiplication** after lossless signed decomposition. The target is reproducible GPU mathematics for cryptographic and mining-adjacent workloads. These experiments do not measure a complete mining algorithm, profitability, proof-system throughput, or energy efficiency.
 
-Implement arbitrary-precision CPU modular GEMM and independently verify signed limb decomposition, reconstruction and accumulation bounds, including adversarial boundary cases.
+## What has actually run
 
-Build a pinned SM120 CUTLASS FP4 path with FP32 output and a native INT8 Tensor Core comparator; validate every output against independent integer arithmetic.
+| Experiment | Observed result |
+|---|---|
+| Independent arbitrary-precision CPU checks | 405,504 signed encodings; 36 exact modular products |
+| Native SM120 FP4 and INT8 preflight | 49,152 known output entries per path, all exact |
+| Complete GPU modular GEMM | SIMT, INT8 base 128/256 and FP4 base 13 agree with an independent CPU oracle at three shapes and three field widths |
+| Unsafe FP4 accumulation | A deliberately large dot product loses an integer unit; retained as a measured precision failure |
+| Unsafe INT8 accumulation | A deliberately excessive sum overflows signed INT32; all 16,384 affected outputs retained in the failure count |
+| Chunked recovery | Both deliberately unsafe cases become exact after bounded accumulation and modular combination |
 
-Execute complete modular matrix products at multiple shapes and field widths; compare SIMT, INT8 and FP4 including conversion, reduction, resident and transfer-inclusive timing.
+The correctness-only records were collected while other CPU compilation could be active. Their incidental wall times are **not comparative performance evidence**. Source and native binary hashes are bound to each executed record.
 
-Test accumulation chunking and encoding alternatives; measure full pipeline rather than extrapolating GEMM throughput. Retain precision failures and corrected implementations.
+## Arithmetic construction
 
-Publish two independent input cohorts, five warmups/thirty observations per fixed case, raw outputs or independently checkable evidence, compiler/environment/source provenance and final bounded conclusions.
+The independent oracle uses Python integers for small cases. The larger comparison uses four float64 integer GEMMs on unsigned 16-bit planes, with `K * 65535^2 < 2^53`; every partial is reduced modulo the field before weighted recombination. This oracle is checked against arbitrary-precision multiplication first. A plain INT64 matrix multiply would overflow for the widest field and is not used as the reference.
 
-## Experimental approach
+For INT8, centered field elements are decomposed in balanced base 128 or 256. Each limb product uses native cuBLAS integer GEMM. The sufficient bound `K * max_digit^2 < 2^31` is checked before execution.
 
-Start from independent exact CPU controls and pinned upstream references. Build hardware-specific paths with validation enabled, then compare complete workloads rather than isolated instruction rates. Retain both independent input cohorts and unsuccessful/negative outcomes.
+For FP4, balanced base 13 uses residues represented by `(0, 1, 2, 3, 4, -8, 6, -6, 8, -4, -3, -2, -1)`. Every digit divided by two is exactly representable in E2M1. Fixed block scales equal one, and FP32 output with epilogue scale four restores integer limb products. A conservative sufficient bound `K * 64 < 2^24` is enforced. This is exact bounded arithmetic, rather than approximate inference quantization.
 
-Fixed-input studies use five warm-ups and thirty measured observations where practical. Stochastic solves and proof commitments use independent inputs and separately identify repeated latency observations. Correctness checks, allocation, compilation, transfer and setup boundaries will be documented per timer.
+The GPU path performs conversion, every pair of limb GEMMs, modular reduction, and weighted recombination. Results are compared entry by entry with no tolerance. Different bases change the number of limb GEMMs; FP4 instruction throughput alone cannot establish a full-pipeline advantage.
 
-## Reproduction and evidence
+## Reproduction
 
-Executable studies and commands are added as experiments become runnable. The committed [research protocol](RESEARCH.md) defines the required experiments and completion gates; reports will distinguish completed measurements from pending work. No GPU benchmark is implied by this initial protocol checkpoint.
+Run CPU controls with Python 3.12:
 
-## Intended deliverables
+```sh
+python cpu_study.py
+python verify_records.py
+```
 
-- Independent CPU reference and negative correctness controls.
-- Executable GPU/native implementations with exact upstream revisions.
-- Raw seeded results, derived tables and source/result/build provenance.
-- Complete English methods, findings, reproduction commands and limitations.
-- CPU/reference/artifact CI on the final published commit.
+GPU experiments require an RTX 5060 Ti / SM120, CUDA 13.3, cuBLAS, NumPy 2.2.6 and CuPy 13.6.0. Clone NVIDIA CUTLASS at `b2f249acd20392beeb16f5e5a31f4f1a4e38b3bd`. The bridge derives its SM120 configuration from NVIDIA's BSD-licensed example; its notice remains in [cuda/fp4_bridge.cu](cuda/fp4_bridge.cu).
 
-## License and contributions
+```sh
+mkdir -p build
+nvcc -O3 -std=c++17 -arch=sm_120a --expt-relaxed-constexpr -shared -Xcompiler=-fPIC \
+  -I../cutlass/include -I../cutlass/tools/util/include cuda/fp4_bridge.cu -lcublas -o build/libexact.so
+python gpu_preflight.py
+python gpu_study.py --validation-only --output results/gpu-validation.json
+python precision_controls.py
+```
 
-Original research code is [MIT licensed](LICENSE). Third-party implementations retain their own licenses. Contributions should include the source revision, environment, exact command, correctness evidence, complete timing boundaries and retained negative results.
+For the final timing campaign, omit `--validation-only` and repeat with seed `20261209` and a different output name. Five warmups and thirty observations are retained separately for direct resident execution, captured execution when supported, and transfer-inclusive execution. Conversion and reduction are inside resident timers; allocation/planning is separate. Run timing campaigns sequentially, with other GPU work and heavy CPU compilation stopped.
+
+## Evidence and remaining questions
+
+The [research protocol](RESEARCH.md) defines all five required experiments. Raw records live in [results](results). [gpu_study.py](gpu_study.py) and [precision_controls.py](precision_controls.py) retain real failures instead of treating a bound as sufficient performance evidence. CPU CI verifies reference arithmetic and source bindings; it cannot re-execute SM120 kernels on hosted CPU runners.
+
+Pending: independent replicated timing cohorts, final tables, setup amortization, and bounded conclusions. No speedup, energy or mining-income claim is currently made. Original code is [MIT licensed](LICENSE); NVIDIA-derived code retains its BSD terms.

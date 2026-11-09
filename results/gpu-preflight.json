@@ -1,0 +1,24 @@
+{
+  "cases": [
+    {
+      "m": 128,
+      "n": 128,
+      "k": 128,
+      "fp4_and_int8_exact": true,
+      "outputs": 16384
+    },
+    {
+      "m": 256,
+      "n": 128,
+      "k": 256,
+      "fp4_and_int8_exact": true,
+      "outputs": 32768
+    }
+  ],
+  "source_sha256": {
+    "gpu_preflight.py": "eddf6f7bc6eaa5455d87acadc27344f9686af61313ebdbcd15d5378cd0918046",
+    "cuda/fp4_bridge.cu": "d66be67d1f0f9bd63468791f877e55ff554df7cc4f59d127b4b3e45c33f43a07"
+  },
+  "binary_sha256": "f68446d5b9ef0b4d80edf8d507232065ce84075993f6f999fe187f5031a46af0",
+  "scope": "Real native SM120 FP4/INT8 executions with known exact outputs. Correctness preflight, not a performance result."
+}

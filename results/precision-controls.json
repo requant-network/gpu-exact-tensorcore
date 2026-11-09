@@ -1,0 +1,37 @@
+{
+  "utc": "2026-11-09T05:47:46.907326+00:00",
+  "cases": [
+    {
+      "mode": "fp4",
+      "m": 128,
+      "n": 128,
+      "k": 1048704,
+      "p": 2013265921,
+      "chunk": 32768,
+      "unsafe_mismatches": 1,
+      "first_unsafe": 67116992,
+      "first_expected": 67116993,
+      "chunked_exact_outputs": 16384,
+      "output_sha256": "d964faaed782b1bdc1fec2cc3280ef17c23eafe8b98c2622b0e799672628a7b0"
+    },
+    {
+      "mode": "int8",
+      "m": 128,
+      "n": 128,
+      "k": 131200,
+      "p": 2013265921,
+      "chunk": 65536,
+      "unsafe_mismatches": 16384,
+      "first_unsafe": -2145386496,
+      "first_expected": 2149580800,
+      "chunked_exact_outputs": 16384,
+      "output_sha256": "965a8981b53f82749fc3d5c9e4ecbd2896cbdece27deb6840ec57a98ff1b925f"
+    }
+  ],
+  "performance_claim": false,
+  "source_sha256": {
+    "precision_controls.py": "464ae208da54094957fdfae5b4597cc178092ab1e68892f191c1eefbdd713be7",
+    "cuda/fp4_bridge.cu": "d66be67d1f0f9bd63468791f877e55ff554df7cc4f59d127b4b3e45c33f43a07"
+  },
+  "binary_sha256": "f68446d5b9ef0b4d80edf8d507232065ce84075993f6f999fe187f5031a46af0"
+}
