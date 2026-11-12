@@ -118,6 +118,7 @@ Second, fuse or batch encoding and modular joins in the wider-field INT8 path. T
 
 Larger shapes, different GPUs, varied scale factors, energy sampling and production integration are outside the completed protocol. They remain follow-up work rather than implied results. [Results](RESULTS.md), [Methods](METHODS.md), [related work](RELATED_WORK.md) and the [protocol](RESEARCH.md) provide the complete scope and reproduction links.
 '''
+final += '\n## Follow-up closure, 12 November 2026\n\nThe [follow-up report](FOLLOWUP_REPORT.md) resolves the concrete priorities above with additional experiments, resource gates and updated conclusions. Its findings supersede the open-work wording in this historical campaign.\n'
 (root/'RESULTS.md').write_text(results,encoding='utf-8',newline='\n')
 (root/'FINAL_REPORT.md').write_text(final,encoding='utf-8',newline='\n')
 provenance=dict(source_sha256={p:hashlib.sha256((root/p).read_bytes()).hexdigest() for p in ['generate_report.py','summarize_results.py']},

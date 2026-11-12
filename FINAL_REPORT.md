@@ -41,3 +41,7 @@ First, test the native-small-field encoding in a real application that can keep 
 Second, fuse or batch encoding and modular joins in the wider-field INT8 path. The current result supports that implementation direction more directly than another FP4 peak-throughput comparison. Third, study residue-number or extension-field constructions only with a complete reconstruction proof and measured conversion cost; the small-field result does not supply those automatically.
 
 Larger shapes, different GPUs, varied scale factors, energy sampling and production integration are outside the completed protocol. They remain follow-up work rather than implied results. [Results](RESULTS.md), [Methods](METHODS.md), [related work](RELATED_WORK.md) and the [protocol](RESEARCH.md) provide the complete scope and reproduction links.
+
+## Follow-up closure, 12 November 2026
+
+The [follow-up report](FOLLOWUP_REPORT.md) resolves the concrete priorities above with additional experiments, resource gates and updated conclusions. Its findings supersede the open-work wording in this historical campaign.

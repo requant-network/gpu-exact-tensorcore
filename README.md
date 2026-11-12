@@ -70,3 +70,7 @@ python verify_records.py
 The [research protocol](RESEARCH.md) defines all five required experiments. Raw records live in [results](results). [gpu_study.py](gpu_study.py) and [precision_controls.py](precision_controls.py) retain real failures instead of treating a bound as sufficient performance evidence. CPU CI verifies reference arithmetic and source bindings; it cannot re-execute SM120 kernels on hosted CPU runners.
 
 The completed [final report](FINAL_REPORT.md) maps every protocol gate to retained evidence and prioritizes application integration, data residency and wider-field INT8 joins. [Related work](RELATED_WORK.md) distinguishes established exact-BLAS techniques from this experiment. CPU CI rechecks arithmetic, source/artifact hashes and deterministic table/report generation. Native CUDA execution remains a separately recorded GPU experiment. No energy or mining-income claim is made. Original code is [MIT licensed](LICENSE); NVIDIA-derived code retains its BSD terms.
+
+## Follow-up closure, 12 November 2026
+
+The [follow-up report](FOLLOWUP_REPORT.md) records the disposition of the concrete next steps: new experiments, negative findings and measured resource limits. The earlier completed campaign remains available for historical comparison. Run `python verify_followups.py` for the added evidence checks.
